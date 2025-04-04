@@ -22,9 +22,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import clientAxios from "@/config/axios";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
+import { isAxiosError } from "axios";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Correo electrónico inválido" }),
@@ -58,7 +58,7 @@ export default function LoginForm() {
         localStorage.setItem("analisis-token", data);
       }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
+      if (isAxiosError(error)) {
         toast.error(error.response?.data.message);
       }
     } finally {
@@ -69,12 +69,12 @@ export default function LoginForm() {
 
   useEffect(() => {
     if (token) {
-      navigate("/app/dashboard");
+      navigate("/app/");
     }
   }, [token]);
 
   return (
-    <div className="flex justify-center items-center w-lg h-[500px]  p-4">
+    <div className="flex justify-center items-center md:w-lg h-[500px]  p-4">
       <Card className="w-full shadow-lg h-full">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">

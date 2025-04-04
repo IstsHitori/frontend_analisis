@@ -83,7 +83,7 @@ export default function ViewRegister() {
   };
 
   return (
-    <div className="fflex justify-center items-center w-lg h-[500px]  p-4">
+    <div className="flex justify-center items-center md:w-lg h-[500px]  p-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
@@ -213,7 +213,7 @@ export default function ViewRegister() {
                 )}
               />
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

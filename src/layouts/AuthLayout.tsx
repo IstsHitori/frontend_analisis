@@ -7,7 +7,7 @@ export default function AuthLayout() {
   return (
     <section className="grid md:grid-cols-2 place-items-center min-h-screen p-10 ">
       {/* Logo */}
-      <div className="md:block display:none rounded-lg overflow-hidden">
+      <div className="md:block invisible absolute md:relative md:visible rounded-lg overflow-hidden">
         <img src={bgLogin} />
       </div>
       {/* Login o Register */}
