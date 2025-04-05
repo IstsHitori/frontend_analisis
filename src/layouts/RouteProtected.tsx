@@ -14,34 +14,32 @@ const RouteProtected = () => {
   //
   const navigate = useNavigate();
   //---
-  const token = localStorage.getItem("analisis-token");
   //---
-  const [activeSection, setActiveSection] = useState("introduccion");
-  const [activeMethod, setActiveMethod] = useState("biseccion");
-
+  const [activeSection, setActiveSection] = useState("");
+  const [activeMethod, setActiveMethod] = useState("");
   useEffect(() => {
-    if (!token) {
+    if (!isAuthenticated()) {
       navigate("/");
     }
-  }, [token, navigate, isAuthenticated]);
+  }, [navigate, isAuthenticated]);
 
   return (
     <main className="max-h-screen flex flex-col overflow-hidden">
-      {token ? (
-        <div className="flex h-screen w-full flex-row overflow-hidden">
-          <SidebarProvider>
-            <SideNavBar
-              activeSection={activeSection}
-              setActiveSection={setActiveSection}
-              activeMethod={activeMethod}
-              setActiveMethod={setActiveMethod}
-            />
-          </SidebarProvider>
+      {isAuthenticated() ? (
+        <div className="flex h-screen w-full flex-row overflow-hidden ">
+          <div>
+            <SidebarProvider>
+              <SideNavBar
+                activeSection={activeSection}
+                setActiveSection={setActiveSection}
+                activeMethod={activeMethod}
+                setActiveMethod={setActiveMethod}
+              />
+            </SidebarProvider>
+          </div>
 
-          <div className="flex-1 overflow-auto pt-16 md:pt-0">
-            <div className="p-2 md:p-4">
-              <Outlet />
-            </div>
+          <div className=" w-full pt-16 md:pt-0">
+            <Outlet />
           </div>
         </div>
       ) : (
