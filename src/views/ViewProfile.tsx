@@ -1,4 +1,4 @@
-import ProfileUpdateForm from "@/components/ProfileUpdateForm"
+import ProfileUpdateForm from "@/components/user/ProfileUpdateForm"
 
 export default function ViewProfile() {
   return (

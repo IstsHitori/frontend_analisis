@@ -24,9 +24,9 @@ const RouteProtected = () => {
   }, [navigate, isAuthenticated]);
 
   return (
-    <main className="max-h-screen flex flex-col overflow-hidden">
+    <main className=" flex flex-col overflow-hidden">
       {isAuthenticated() ? (
-        <div className="flex h-screen w-full flex-row overflow-hidden ">
+        <div className="flex w-full flex-row ">
           <div>
             <SidebarProvider>
               <SideNavBar
