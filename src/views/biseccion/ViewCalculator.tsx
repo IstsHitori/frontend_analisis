@@ -1,5 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from "react";
-import { evaluate } from "mathjs";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,31 +19,40 @@ import {
   ChevronRight,
   CheckCircle2,
   Keyboard,
+  ActivityIcon as Function,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { VirtualKeyboard } from "@/components/biseccion/VirtualKeyboard";
 import { useToast } from "@/components/ui/use-toast";
+import { FunctionGraph } from "@/components/biseccion/function-graph";
+import { StepByStep } from "@/components/biseccion/step-by-step";
+import { ExportButtons } from "@/components/biseccion/export-buttons";
 import confetti from "canvas-confetti";
-
-interface BisectionResult {
-  iteration: number;
-  xi: number;
-  xs: number;
-  xr: number;
-  fxr: number;
-  error: number;
-  isRoot?: boolean;
-}
+import { calculateBisection } from "@/services/biseccion/biseccion";
+import type {
+  BisectionParameters,
+  BisectionResult,
+  DetailedBisectionStep,
+  StoppingCriteria,
+} from "@/types/Biseccion";
 
 export function ViewCalculator() {
+  // Estado para los parámetros de entrada
   const [func, setFunc] = useState("x^3 - x - 2");
   const [xi, setXi] = useState("-2");
   const [xs, setXs] = useState("2");
   const [tolerance, setTolerance] = useState("0.0001");
   const [maxIterations, setMaxIterations] = useState("100");
-  const [stoppingCriteria, setStoppingCriteria] = useState("absoluteError");
+  const [decimals, setDecimals] = useState("6");
+  const [stoppingCriteria, setStoppingCriteria] =
+    useState<StoppingCriteria>("tolerance");
+
+  // Estado para los resultados
   const [results, setResults] = useState<BisectionResult[]>([]);
+  const [detailedSteps, setDetailedSteps] = useState<DetailedBisectionStep[]>(
+    []
+  );
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isCalculating, setIsCalculating] = useState(false);
@@ -53,42 +61,21 @@ export function ViewCalculator() {
   const [rootFunctionValue, setRootFunctionValue] = useState<number | null>(
     null
   );
+
+  // Estado para la UI
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [activeTab, setActiveTab] = useState("input");
+
+  // Referencias
   const funcInputRef = useRef<HTMLInputElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
+
+  // Hooks
   const { toast } = useToast();
+
+  // Constantes
   const rowsPerPage = 10;
-
-  const evaluateFunction = useCallback(
-    (x: number): number => {
-      try {
-        return evaluate(func, { x });
-      } catch (e) {
-        console.log(e);
-        throw new Error("Error al evaluar la función");
-      }
-    },
-    [func]
-  );
-
-  const validateBolzano = useCallback(
-    (xi: number, xs: number): boolean => {
-      try {
-        const fxi = evaluateFunction(xi);
-        const fxs = evaluateFunction(xs);
-        return fxi * fxs < 0;
-      } catch (e) {
-        console.log(e);
-        throw new Error("Error al validar el teorema de Bolzano");
-      }
-    },
-    [evaluateFunction]
-  );
-
-  const isRootValid = (xr: number, fxr: number, tolerance: number): boolean => {
-    return Math.abs(fxr) < tolerance;
-  };
+  const numDecimals = Number.parseInt(decimals) || 6;
 
   // Función para lanzar confetti
   const launchConfetti = () => {
@@ -99,9 +86,11 @@ export function ViewCalculator() {
     });
   };
 
-  const calculateBisection = () => {
+  // Función principal para calcular el método de bisección
+  const handleCalculateBisection = () => {
     setError("");
     setResults([]);
+    setDetailedSteps([]);
     setIsCalculating(true);
     setRootFound(false);
     setRootValue(null);
@@ -112,120 +101,55 @@ export function ViewCalculator() {
       const numXs = Number.parseFloat(xs);
       const numTolerance = Number.parseFloat(tolerance);
       const numMaxIterations = Number.parseInt(maxIterations);
+      const numDecimals = Number.parseInt(decimals) || 6;
 
-      if (isNaN(numXi) || isNaN(numXs)) {
-        throw new Error("Los valores de xi y xs deben ser números válidos");
-      }
+      const params: BisectionParameters = {
+        func,
+        xi: numXi,
+        xs: numXs,
+        tolerance: numTolerance,
+        maxIterations: numMaxIterations,
+        decimals: numDecimals,
+        stoppingCriteria,
+      };
 
-      if (isNaN(numTolerance) || numTolerance <= 0) {
-        throw new Error("La tolerancia debe ser un número positivo");
-      }
+      const {
+        results,
+        detailedSteps,
+        rootValue,
+        rootFunctionValue,
+        rootFound,
+      } = calculateBisection(params);
 
-      if (isNaN(numMaxIterations) || numMaxIterations <= 0) {
-        throw new Error(
-          "El número máximo de iteraciones debe ser un entero positivo"
-        );
-      }
+      setResults(results);
+      setDetailedSteps(detailedSteps);
+      setCurrentPage(1);
+      setRootFound(rootFound);
+      setRootValue(rootValue);
+      setRootFunctionValue(rootFunctionValue);
 
-      if (!validateBolzano(numXi, numXs)) {
-        throw new Error(
-          "No se cumple el teorema de Bolzano en el intervalo dado. f(xi) y f(xs) deben tener signos opuestos."
-        );
-      }
+      // Cambiar a la pestaña de resultados
+      setTimeout(() => {
+        setActiveTab("results");
 
-      const bisectionResults: BisectionResult[] = [];
-      let currentXi = numXi;
-      let currentXs = numXs;
-      let error = Number.MAX_VALUE;
-      let prevXr = 0;
-      let foundRoot = false;
-      let finalXr = 0;
-      let finalFxr = 0;
-
-      for (let i = 0; i < numMaxIterations; i++) {
-        const xr = (currentXi + currentXs) / 2;
-        const fxr = evaluateFunction(xr);
-
-        if (i > 0) {
-          if (stoppingCriteria === "absoluteError") {
-            error = Math.abs(xr - prevXr);
-          } else if (stoppingCriteria === "relativeError") {
-            error = Math.abs((xr - prevXr) / xr);
-          }
-        }
-
-        // Verificar si es raíz
-        const isRoot = i > 0 && isRootValid(xr, fxr, numTolerance);
-
-        bisectionResults.push({
-          iteration: i + 1,
-          xi: currentXi,
-          xs: currentXs,
-          xr,
-          fxr,
-          error,
-          isRoot,
+        // Mostrar notificación de éxito
+        toast({
+          variant: "success",
+          title: "¡Cálculo completado!",
+          description: rootFound
+            ? `Se ha encontrado una raíz en x = ${rootValue?.toFixed(
+                numDecimals
+              )}`
+            : `Cálculo finalizado con ${results.length} iteraciones`,
         });
 
-        finalXr = xr;
-        finalFxr = fxr;
-
-        // Verificar criterio de parada
-        if (stoppingCriteria === "tolerance" && Math.abs(fxr) < numTolerance) {
-          foundRoot = true;
-          break;
-        } else if (
-          (stoppingCriteria === "absoluteError" ||
-            stoppingCriteria === "relativeError") &&
-          error < numTolerance
-        ) {
-          foundRoot = true;
-          break;
-        } else if (Math.abs(fxr) < 1e-15) {
-          // Consideramos que hemos encontrado la raíz exacta
-          foundRoot = true;
-          break;
+        // Si se encontró una raíz, lanzar confetti
+        if (rootFound) {
+          setTimeout(launchConfetti, 300);
         }
-
-        prevXr = xr;
-        const fxi = evaluateFunction(currentXi);
-        if (fxi * fxr < 0) {
-          currentXs = xr;
-        } else {
-          currentXi = xr;
-        }
-      }
-
-      setResults(bisectionResults);
-      setCurrentPage(1);
-
-      // Validar y guardar la raíz encontrada
-      if (foundRoot || bisectionResults.length > 0) {
-        setRootFound(foundRoot);
-        setRootValue(finalXr);
-        setRootFunctionValue(finalFxr);
-
-        // Cambiar a la pestaña de resultados
-        setTimeout(() => {
-          setActiveTab("results");
-
-          // Mostrar notificación de éxito
-          toast({
-            variant: "success",
-            title: "¡Cálculo completado!",
-            description: foundRoot
-              ? `Se ha encontrado una raíz en x = ${finalXr.toFixed(6)}`
-              : `Cálculo finalizado con ${bisectionResults.length} iteraciones`,
-          });
-
-          // Si se encontró una raíz, lanzar confetti
-          if (foundRoot) {
-            setTimeout(launchConfetti, 300);
-          }
-        }, 500);
-      }
+      }, 500);
     } catch (e) {
-      if (!(e instanceof Error)) return;
+      if(!(e instanceof Error)) return;
       setError(e.message);
       toast({
         variant: "destructive",
@@ -237,12 +161,14 @@ export function ViewCalculator() {
     }
   };
 
+  // Manejo de la paginación
   const totalPages = Math.ceil(results.length / rowsPerPage);
   const paginatedResults = results.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
 
+  // Manejo del teclado virtual
   const handleKeyboardInsert = (value: string) => {
     if (!funcInputRef.current) return;
 
@@ -303,10 +229,23 @@ export function ViewCalculator() {
     }
   }, [results, activeTab]);
 
+  // Preparar datos para exportación
+  const exportData = {
+    results,
+    func,
+    xi: Number.parseFloat(xi),
+    xs: Number.parseFloat(xs),
+    rootValue,
+    rootFunctionValue,
+    decimals: numDecimals,
+    stoppingCriteria,
+    tolerance,
+  };
+
   return (
-    <div className="space-y-6 p-10">
+    <div className="space-y-6">
       <Card className="overflow-hidden">
-        <CardHeader>
+        <CardHeader className="bg-gradient-to-r from-slate-800 to-slate-700 text-white">
           <CardTitle className="text-2xl font-bold">
             Método de Bisección
           </CardTitle>
@@ -368,7 +307,7 @@ export function ViewCalculator() {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="xi" className="text-base font-medium">
                       Límite inferior (xi)
@@ -391,6 +330,20 @@ export function ViewCalculator() {
                       className="mt-1"
                     />
                   </div>
+                  <div>
+                    <Label htmlFor="decimals" className="text-base font-medium">
+                      Decimales
+                    </Label>
+                    <Input
+                      id="decimals"
+                      value={decimals}
+                      onChange={(e) => setDecimals(e.target.value)}
+                      className="mt-1"
+                      type="number"
+                      min="0"
+                      max="15"
+                    />
+                  </div>
                 </div>
 
                 <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-lg border">
@@ -399,16 +352,11 @@ export function ViewCalculator() {
                   </Label>
                   <RadioGroup
                     value={stoppingCriteria}
-                    onValueChange={setStoppingCriteria}
+                    onValueChange={(value) =>
+                      setStoppingCriteria(value as StoppingCriteria)
+                    }
                     className="flex flex-col space-y-2"
                   >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem
-                        value="absoluteError"
-                        id="absoluteError"
-                      />
-                      <Label htmlFor="absoluteError">Error absoluto</Label>
-                    </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="tolerance" id="tolerance" />
                       <Label htmlFor="tolerance">
@@ -437,9 +385,9 @@ export function ViewCalculator() {
                     >
                       {stoppingCriteria === "tolerance"
                         ? "Tolerancia (para f(x))"
-                        : stoppingCriteria === "absoluteError"
-                        ? "Error absoluto máximo"
-                        : "Error relativo máximo"}
+                        : stoppingCriteria === "relativeError"
+                        ? "Error relativo máximo"
+                        : "Tolerancia"}
                     </Label>
                     <Input
                       id="tolerance"
@@ -473,7 +421,7 @@ export function ViewCalculator() {
                 )}
 
                 <Button
-                  onClick={calculateBisection}
+                  onClick={handleCalculateBisection}
                   disabled={isCalculating}
                   className="w-full bg-slate-800 hover:bg-slate-700 text-white"
                   size="lg"
@@ -510,9 +458,18 @@ export function ViewCalculator() {
             </TabsContent>
             <TabsContent
               value="results"
-              className="space-y-4 pt-4"
+              className="space-y-6 pt-4"
               ref={resultRef}
             >
+              {/* Mostrar la función que se está evaluando */}
+              <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border flex items-center">
+                <Function className="h-5 w-5 mr-2 text-slate-600 dark:text-slate-400" />
+                <div>
+                  <h3 className="font-medium">Función evaluada:</h3>
+                  <p className="text-lg font-mono">f(x) = {func}</p>
+                </div>
+              </div>
+
               {rootFound && rootValue !== null && (
                 <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-4 flex items-start">
                   <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 mr-2 mt-0.5" />
@@ -521,8 +478,9 @@ export function ViewCalculator() {
                       ¡Raíz encontrada!
                     </h3>
                     <p className="text-green-700 dark:text-green-300">
-                      Se ha encontrado una raíz en x = {rootValue.toFixed(8)}{" "}
-                      con f(x) = {rootFunctionValue?.toFixed(8)}
+                      Se ha encontrado una raíz en x ={" "}
+                      {rootValue.toFixed(numDecimals)} con f(x) ={" "}
+                      {rootFunctionValue?.toFixed(numDecimals)}
                     </p>
                   </div>
                 </div>
@@ -530,7 +488,14 @@ export function ViewCalculator() {
 
               {results.length > 0 && (
                 <>
-                  <div className="rounded-md border overflow-hidden">
+                  <div className="flex justify-end mb-4">
+                    <ExportButtons exportData={exportData} />
+                  </div>
+
+                  <div
+                    className="rounded-md border overflow-hidden"
+                    id="results-table"
+                  >
                     <Table>
                       <TableHeader className="bg-slate-100 dark:bg-slate-800">
                         <TableRow>
@@ -556,14 +521,20 @@ export function ViewCalculator() {
                             }
                           >
                             <TableCell>{result.iteration}</TableCell>
-                            <TableCell>{result.xi.toFixed(6)}</TableCell>
-                            <TableCell>{result.xs.toFixed(6)}</TableCell>
+                            <TableCell>
+                              {result.xi.toFixed(numDecimals)}
+                            </TableCell>
+                            <TableCell>
+                              {result.xs.toFixed(numDecimals)}
+                            </TableCell>
                             <TableCell
                               className={result.isRoot ? "font-bold" : ""}
                             >
-                              {result.xr.toFixed(6)}
+                              {result.xr.toFixed(numDecimals)}
                             </TableCell>
-                            <TableCell>{result.fxr.toFixed(6)}</TableCell>
+                            <TableCell>
+                              {result.fxr.toFixed(numDecimals)}
+                            </TableCell>
                             <TableCell>
                               {result.iteration === 1
                                 ? "-"
@@ -629,13 +600,17 @@ export function ViewCalculator() {
                               Raíz aproximada:
                             </span>
                             <span className="font-mono">
-                              {results[results.length - 1].xr.toFixed(8)}
+                              {results[results.length - 1].xr.toFixed(
+                                numDecimals
+                              )}
                             </span>
                           </p>
                           <p className="flex justify-between">
                             <span className="font-medium">Valor de f(xr):</span>
                             <span className="font-mono">
-                              {results[results.length - 1].fxr.toFixed(8)}
+                              {results[results.length - 1].fxr.toFixed(
+                                numDecimals
+                              )}
                             </span>
                           </p>
                         </div>
@@ -656,6 +631,21 @@ export function ViewCalculator() {
                       </div>
                     </CardContent>
                   </Card>
+
+                  <div className="mt-6" id="function-graph">
+                    <FunctionGraph
+                      func={func}
+                      xi={Number.parseFloat(xi)}
+                      xs={Number.parseFloat(xs)}
+                      root={rootValue}
+                      width={600}
+                      height={350}
+                    />
+                  </div>
+
+                  <div className="mt-6">
+                    <StepByStep steps={detailedSteps} decimals={numDecimals} />
+                  </div>
                 </>
               )}
             </TabsContent>
