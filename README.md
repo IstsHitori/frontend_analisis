@@ -1,3 +1,13 @@
+# PASOS PARA INSTALAR EL PROGRAMA
+
+Abrir la consola en el directorio raíz del frontend y ejecutar el siguiente comando:
+
+npm install
+
+Después iniciamos el servidor con: npm run dev
+
+
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
