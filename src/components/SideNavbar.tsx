@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from "react"
 import {
   BookOpen,
   Calculator,
@@ -17,7 +17,7 @@ import {
   Settings,
   Menu,
   X,
-} from "lucide-react";
+} from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -32,40 +32,35 @@ import {
   SidebarMenuSubItem,
   SidebarRail,
   SidebarFooter,
-} from "@/components/ui/sidebar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { motion, AnimatePresence } from "framer-motion";
+} from "@/components/ui/sidebar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
+import { motion, AnimatePresence } from "framer-motion"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useIsMobile } from "@/hooks/use-mobile";
+} from "@/components/ui/dropdown-menu"
+import { useIsMobile } from "@/hooks/use-mobile"
 //
-import { useAuth } from "@/hooks/auth/useAuth";
-import { getCutName } from "@/utils";
+import { useAuth } from "@/hooks/auth/useAuth"
+import { getCutName } from "@/utils"
 //
-import { Link } from "react-router-dom";
+import { Link } from "react-router-dom"
 
 interface AppSidebarProps {
-  activeSection: string;
-  setActiveSection: (section: string) => void;
-  activeMethod: string;
-  setActiveMethod: (method: string) => void;
+  activeSection: string
+  setActiveSection: (section: string) => void
+  activeMethod: string
+  setActiveMethod: (method: string) => void
 }
 
-export function SideNavBar({
-  activeSection,
-  setActiveSection,
-  activeMethod,
-  setActiveMethod,
-}: AppSidebarProps) {
+export function SideNavBar({ activeSection, setActiveSection, activeMethod, setActiveMethod }: AppSidebarProps) {
   // Hook para manejar el usuario
-  const { user, logout } = useAuth();
+  const { user, logout } = useAuth()
 
   // Estado para controlar qué menús están abiertos
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
@@ -75,13 +70,16 @@ export function SideNavBar({
     secante: false,
     "newton-raphson": false,
     "newton-raphson-modificado": false,
-  });
+  })
+
+  // New state to track if the "primer corte" menu is open
+  const [isPrimerCorteOpen, setIsPrimerCorteOpen] = useState(true)
 
   // Estado para controlar si el sidebar está abierto en móvil
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   // Media query para detectar dispositivos móviles
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile()
 
   // Cerrar sidebar en móvil cuando se cambia de sección
   useEffect(() => {
@@ -89,45 +87,45 @@ export function SideNavBar({
       // No cerramos automáticamente el sidebar al cambiar de sección
       // para permitir la navegación entre secciones
     }
-  }, [activeSection, isMobile, isSidebarOpen]);
+  }, [activeSection, isMobile, isSidebarOpen])
 
   // Función para alternar el estado de un menú
   const toggleMenu = (menuId: string) => {
     setOpenMenus((prev) => ({
       ...prev,
       [menuId]: !prev[menuId],
-    }));
+    }))
     // No cerramos el sidebar cuando se expande/colapsa un menú
-  };
+  }
 
   // Función para seleccionar un método y abrir su menú
   const selectMethod = (methodId: string) => {
-    setActiveMethod(methodId);
-    setActiveSection(methodId); // Ir a la página principal del método
+    setActiveMethod(methodId)
+    setActiveSection(methodId) // Ir a la página principal del método
 
     // Abrir el menú del método seleccionado
     setOpenMenus((prev) => {
-      const newState = { ...prev };
+      const newState = { ...prev }
       Object.keys(newState).forEach((key) => {
-        newState[key] = key === methodId;
-      });
-      return newState;
-    });
+        newState[key] = key === methodId
+      })
+      return newState
+    })
 
     // No cerramos el sidebar cuando se selecciona un método
-  };
+  }
 
   // Función para seleccionar una sección dentro de un método
   const selectSection = (methodId: string, sectionId: string) => {
-    setActiveMethod(methodId);
-    setActiveSection(sectionId);
+    setActiveMethod(methodId)
+    setActiveSection(sectionId)
 
     // En móvil, cerrar el sidebar SOLO después de seleccionar una sección específica
     // y no cuando se selecciona el método principal
     if (isMobile && sectionId !== methodId) {
-      setIsSidebarOpen(false);
+      setIsSidebarOpen(false)
     }
-  };
+  }
 
   // Configuración de los métodos y sus secciones
   const methods = [
@@ -167,7 +165,7 @@ export function SideNavBar({
       icon: GitPullRequestDraft,
       color: "from-sky-500 to-sky-600",
     },
-  ];
+  ]
 
   // Secciones comunes para todos los métodos
   const commonSections = [
@@ -191,7 +189,7 @@ export function SideNavBar({
       title: "Calculadora",
       icon: Calculator,
     },
-  ];
+  ]
 
   // Variantes de animación para los menús desplegables
   const menuVariants = {
@@ -211,20 +209,20 @@ export function SideNavBar({
         ease: "easeInOut",
       },
     },
-  };
+  }
 
   // Variantes de animación para los iconos
   const iconVariants = {
     closed: { rotate: 0 },
     open: { rotate: 180 },
-  };
+  }
 
   // Clase condicional para el sidebar en móvil
   const mobileClasses = isMobile
     ? `fixed inset-y-0 left-0 z-50 transform ${
         isSidebarOpen ? "translate-x-0" : "-translate-x-full"
       } transition-transform duration-300 ease-in-out`
-    : "";
+    : ""
 
   return (
     <>
@@ -236,20 +234,13 @@ export function SideNavBar({
           className="fixed top-4 left-4 z-50 md:hidden"
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
         >
-          {isSidebarOpen ? (
-            <X className="h-6 w-6" />
-          ) : (
-            <Menu className="h-6 w-6" />
-          )}
+          {isSidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </Button>
       )}
 
       {/* Overlay para cerrar el sidebar en móvil */}
       {isMobile && isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        />
+        <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setIsSidebarOpen(false)} />
       )}
 
       <Sidebar
@@ -271,89 +262,101 @@ export function SideNavBar({
           </div>
           <Separator className="my-4 opacity-50" />
         </SidebarHeader>
-        <SidebarContent className="px-2">
+        <SidebarContent className="px-1">
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
-                {methods.map((method) => (
-                  <SidebarMenuItem key={method.id} className="mb-1">
-                    <SidebarMenuButton
-                      onClick={() => {
-                        toggleMenu(method.id);
-                        if (!openMenus[method.id]) {
-                          selectMethod(method.id);
-                        }
-                      }}
-                      isActive={activeMethod === method.id}
-                      tooltip={method.title}
-                      className={`transition-all duration-200 text-sm ${
-                        activeMethod === method.id
-                          ? `bg-gradient-to-r text-white hover:shadow-md`
-                          : "hover:bg-gray-100 dark:hover:bg-gray-800"
-                      }`}
+                <SidebarMenuItem className="mb-1">
+                  <SidebarMenuButton
+                    onClick={() => setIsPrimerCorteOpen(!isPrimerCorteOpen)}
+                    className="transition-all duration-200 text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
+                  >
+                    <div className="p-1 rounded-md bg-gray-100 dark:bg-gray-800">
+                      <BookOpen className="h-4 w-4" />
+                    </div>
+                    <span className="font-medium">Primer Corte</span>
+                    <motion.div
+                      animate={isPrimerCorteOpen ? "open" : "closed"}
+                      variants={iconVariants}
+                      transition={{ duration: 0.3 }}
+                      className="ml-auto"
                     >
-                      <div
-                        className={`p-1 rounded-md ${
-                          activeMethod === method.id
-                            ? "bg-white/20"
-                            : "bg-gray-100 dark:bg-gray-800"
-                        }`}
-                      >
-                        <method.icon className="h-4 w-4" />
-                      </div>
-                      <span className="font-medium">{method.title}</span>
-                      <motion.div
-                        animate={openMenus[method.id] ? "open" : "closed"}
-                        variants={iconVariants}
-                        transition={{ duration: 0.3 }}
-                        className="ml-auto"
-                      >
-                        <ChevronDown className="h-4 w-4" />
-                      </motion.div>
-                    </SidebarMenuButton>
+                      <ChevronDown className="h-4 w-4" />
+                    </motion.div>
+                  </SidebarMenuButton>
 
-                    <AnimatePresence initial={false}>
-                      {openMenus[method.id] && (
-                        <motion.div
-                          initial="hidden"
-                          animate="visible"
-                          exit="hidden"
-                          variants={menuVariants}
-                        >
-                          <SidebarMenuSub>
-                            {commonSections.map((section) => (
-                              <SidebarMenuSubItem
-                                key={`${method.id}-${section.id}`}
-                                className="w-full md:w-[200px]"
+                  <AnimatePresence initial={false}>
+                    {isPrimerCorteOpen && (
+                      <motion.div initial="hidden" animate="visible" exit="hidden" variants={menuVariants}>
+                        <SidebarMenuSub>
+                          {methods.map((method) => (
+                            <SidebarMenuSubItem key={method.id} className="w-full md:w-[200px]">
+                              <SidebarMenuSubButton
+                                onClick={() => {
+                                  toggleMenu(method.id)
+                                  if (!openMenus[method.id]) {
+                                    selectMethod(method.id)
+                                  }
+                                }}
+                                isActive={activeMethod === method.id}
+                                className={`transition-all duration-200 ${
+                                  activeMethod === method.id ? `bg-gradient-to-r bg-opacity-20 font-medium` : ""
+                                }`}
                               >
-                                <Link to={`/app/${method.id}/${section.id}`}>
-                                  <SidebarMenuSubButton
-                                    isActive={
-                                      activeMethod === method.id &&
-                                      activeSection === section.id
-                                    }
-                                    onClick={() =>
-                                      selectSection(method.id, section.id)
-                                    }
-                                    className={`transition-all duration-200 ${
-                                      activeMethod === method.id &&
-                                      activeSection === section.id
-                                        ? `bg-gradient-to-r bg-opacity-20 font-medium`
-                                        : ""
-                                    }`}
-                                  >
-                                    <section.icon className="h-4 w-4 mr-2" />
-                                    {section.title}
-                                  </SidebarMenuSubButton>
-                                </Link>
-                              </SidebarMenuSubItem>
-                            ))}
-                          </SidebarMenuSub>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </SidebarMenuItem>
-                ))}
+                                <div
+                                  className={`p-1 rounded-md ${
+                                    activeMethod === method.id ? "bg-white/20" : "bg-gray-100 dark:bg-gray-800"
+                                  }`}
+                                >
+                                  <method.icon className="h-4 w-4" />
+                                </div>
+                                <span className="font-medium">{method.title}</span>
+                                <motion.div
+                                  animate={openMenus[method.id] ? "open" : "closed"}
+                                  variants={iconVariants}
+                                  transition={{ duration: 0.3 }}
+                                  className="ml-auto"
+                                >
+                                  <ChevronDown className="h-4 w-4" />
+                                </motion.div>
+                              </SidebarMenuSubButton>
+
+                              <AnimatePresence initial={false}>
+                                {openMenus[method.id] && (
+                                  <motion.div initial="hidden" animate="visible" exit="hidden" variants={menuVariants}>
+                                    <SidebarMenuSub>
+                                      {commonSections.map((section) => (
+                                        <SidebarMenuSubItem
+                                          key={`${method.id}-${section.id}`}
+                                          className="w-full md:w-[200px]"
+                                        >
+                                          <Link to={`/app/${method.id}/${section.id}`}>
+                                            <SidebarMenuSubButton
+                                              isActive={activeMethod === method.id && activeSection === section.id}
+                                              onClick={() => selectSection(method.id, section.id)}
+                                              className={`transition-all duration-200 ${
+                                                activeMethod === method.id && activeSection === section.id
+                                                  ? `bg-gradient-to-r bg-opacity-20 font-medium`
+                                                  : ""
+                                              }`}
+                                            >
+                                              <section.icon className="h-4 w-4 mr-2" />
+                                              {section.title}
+                                            </SidebarMenuSubButton>
+                                          </Link>
+                                        </SidebarMenuSubItem>
+                                      ))}
+                                    </SidebarMenuSub>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -385,8 +388,8 @@ export function SideNavBar({
               <DropdownMenuContent align="end" className="w-56">
                 <Link
                   onClick={() => {
-                    setActiveMethod("");
-                    setActiveSection("perfil");
+                    setActiveMethod("")
+                    setActiveSection("perfil")
                   }}
                   to={"/app/perfil"}
                 >
@@ -397,10 +400,7 @@ export function SideNavBar({
                 </Link>
 
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={logout}
-                  className="cursor-pointer text-rose-500 dark:text-rose-400"
-                >
+                <DropdownMenuItem onClick={logout} className="cursor-pointer text-rose-500 dark:text-rose-400">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Cerrar sesión</span>
                 </DropdownMenuItem>
@@ -411,5 +411,5 @@ export function SideNavBar({
         <SidebarRail />
       </Sidebar>
     </>
-  );
+  )
 }
