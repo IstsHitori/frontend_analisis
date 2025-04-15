@@ -52,6 +52,7 @@ export function calculateError(
   return Math.abs(currentXr - prevXr);
 }
 
+
 /**
  * Determina si se debe detener la iteración según el criterio de parada
  */
