@@ -6,7 +6,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { AlertCircle, ChevronLeft, ChevronRight, CheckCircle2, Keyboard, ActivityIcon as Function } from "lucide-react"
+import { AlertCircle, ChevronLeft, ChevronRight, CheckCircle2, Keyboard, ActivityIcon as Function, HelpCircle } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { VirtualKeyboard } from "@/components/biseccion/VirtualKeyboard"
@@ -18,6 +18,7 @@ import { BolzanoCheck } from "@/components/biseccion/bolzano-check"
 import confetti from "canvas-confetti"
 import { calculateBisection, validateBolzano } from "@/services/biseccion/biseccion"
 import type { BisectionParameters, BisectionResult, DetailedBisectionStep, StoppingCriteria } from "@/types/Biseccion"
+import { InstructionsModal } from "@/components/biseccion/instructions-modal"
 
 export function ViewCalculator() {
   // Estado para los parámetros de entrada
@@ -43,6 +44,7 @@ export function ViewCalculator() {
   // Estado para la UI
   const [showKeyboard, setShowKeyboard] = useState(false)
   const [activeTab, setActiveTab] = useState("input")
+  const [showInstructions, setShowInstructions] = useState(false); //se agrego este estado para controlar el evento
 
   // Referencias
   const funcInputRef = useRef<HTMLInputElement>(null)
@@ -259,6 +261,31 @@ export function ViewCalculator() {
 
   return (
     <div className="space-y-6 p-2">
+      {/* Modal de instrucciones */}
+      <InstructionsModal isOpen={showInstructions} onClose={() => setShowInstructions(false)} />
+      {/* Fin del modal de instrucciones */}
+      
+      {/* Tarjeta principal de la calculadora 
+      que contiene el boton de 'Ver instrucciones' para visualizar las instrucciones
+      de como usar la calculadora*/}
+      <Card className="overflow-hidden">
+        <CardHeader className="bg-gradient-to-r ">
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-2xl font-bold">Calculadora de Métodos Numéricos</CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowInstructions(true)}
+              className="flex items-center gap-2"
+            >
+              <HelpCircle className="h-5 w-5" />
+              Ver instrucciones
+            </Button>
+          </div>
+        </CardHeader>
+      </Card>
+      {/*Fin de la tarjeta principal de la calculadora*/}
+
       <Card className="overflow-hidden">
         <CardHeader className="bg-gradient-to-r ">
           <CardTitle className="text-2xl font-bold">Método de Bisección</CardTitle>

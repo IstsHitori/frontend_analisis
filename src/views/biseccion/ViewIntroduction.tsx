@@ -15,6 +15,7 @@ import {
   Video,
   ActivityIcon as Function,
 } from "lucide-react";
+import { MathFormula } from "@/components/biseccion/math-formula";
 
 export function ViewBiseccionIntroduction() {
   return (
@@ -50,7 +51,99 @@ export function ViewBiseccionIntroduction() {
               numéricos que permite encontrar raíces de funciones continuas. Se
               basa en el teorema del valor intermedio y utiliza un enfoque de
               "divide y vencerás" para aproximar soluciones.
-            </p>
+              <br /><br />
+              El método de bisección, también conocido como el método de Bolzano, es un
+              método numérico para encontrar raíces de ecuaciones de la forma: <MathFormula formula="f(x) = 0" className="inline" />
+            </p><br />
+
+            {/* Sección de fórmulas matemáticas */}
+            <Card className="mt-4 border bg-muted/30 p-4">
+              <div className="flex items-center gap-2 mb-2">
+                {/*<Info className="h-5 w-5 text-primary" /> */}
+                <h4 className="text-lg font-semibold">Fundamento Teórico</h4>
+              </div>
+              <p className="text-sm mb-3">
+                El método se basa en el Teorema de Bolzano, el cual establece que si una función continua{" "}
+                <MathFormula formula="f(x)" className="inline" /> tiene signos opuestos en los extremos de un intervalo{" "}
+                <MathFormula formula="[a,b]" className="inline" />, es decir:
+              </p>
+              <div className="bg-card p-4 rounded-md">
+                <MathFormula formula="f(a) \cdot f(b) < 0" displayMode={true} className="my-2" />
+              </div>
+              <p className="text-sm mt-3">
+                entonces existe al menos una raíz <MathFormula formula="c" className="inline" /> en dicho intervalo,
+                donde <MathFormula formula="f(c) = 0" className="inline" />
+              </p>
+
+              <div className="mt-5">
+                <h4 className="text-lg font-semibold">Algoritmo del Método de Bisección</h4><br />
+                <ol className="list-decimal list-inside space-y-3 text-sm pl-2">
+                  <li>
+                    Definir el intervalo inicial <MathFormula formula="[a,b]" className="inline" />, donde{" "}
+                    <MathFormula formula="f(a) \cdot f(b) < 0" className="inline" />
+                  </li>
+                  <li>
+                    Calcular el punto medio del intervalo:
+                    <div className="bg-card p-3 rounded-md my-2">
+                      <MathFormula formula="c = \frac{a + b}{2}" displayMode={true} />
+                    </div>
+                  </li>
+                  <li>
+                    Evaluar la función en nuestro punto medio <MathFormula formula="c" className="inline" />:
+                    <ul className="list-disc list-inside pl-4 mt-1 space-y-2">
+                      <li>
+                        Si <MathFormula formula="f(c) = 0" className="inline" />, entonces{" "}
+                        <MathFormula formula="c" className="inline" /> es la raíz exacta.
+                      </li>
+                      <li>
+                        Si <MathFormula formula="f(a) \cdot f(c) < 0" className="inline" />, entonces la raíz está en{" "}
+                        <MathFormula formula="[a,c]" className="inline" /> y se redefine{" "}
+                        <MathFormula formula="b = c" className="inline" />.
+                      </li>
+                      <li>
+                        Si <MathFormula formula="f(b) \cdot f(c) < 0" className="inline" />, entonces la raíz está en{" "}
+                        <MathFormula formula="[c,b]" className="inline" /> y se redefine{" "}
+                        <MathFormula formula="a = c" className="inline" />.
+                      </li>
+                    </ul>
+                  </li>
+                  <li>
+                    Calcular el error relativo:
+                    <div className="bg-card p-3 rounded-md my-2">
+                      <MathFormula
+                        formula="e_a = \left| \frac{c - c_{anterior}}{c} \right| \cdot 100"
+                        displayMode={true}
+                      />
+                    </div>
+                  </li>
+                  <li>
+                    Repetir el proceso hasta que el intervalo sea lo suficientemente pequeño o se alcance un número
+                    máximo de iteraciones.
+                  </li>
+                </ol>
+              </div>
+
+              <div className="mt-5">
+                <h4 className="text-lg font-semibold">Criterio de Parada</h4><br />
+                <p className="text-sm mb-3">
+                  El proceso se detiene cuando se cumple alguna de las siguientes condiciones:
+                </p>
+                <div className="bg-card p-3 rounded-md">
+                  <MathFormula
+                    formula="\left| \frac{c - c_{anterior}}{c} \right| \cdot 100 < \varepsilon"
+                    displayMode={true}
+                    className="my-2"
+                  />
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Donde <MathFormula formula="\varepsilon" className="inline" /> es una tolerancia pequeña,{" "}
+                    <MathFormula formula="c" className="inline" /> es el punto medio actual y{" "}
+                    <MathFormula formula="c_{anterior}" className="inline" /> es el punto medio de la iteración
+                    anterior.
+                  </p>
+                </div>
+              </div>
+            </Card>
+
             <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="rounded-lg border bg-card p-4">
                 <h4 className="mb-2 font-medium">Ventajas</h4>
