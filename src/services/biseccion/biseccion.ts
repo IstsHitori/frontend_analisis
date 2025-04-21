@@ -80,6 +80,7 @@ export function shouldStopIteration(
   }
 }
 
+
 /**
  * Implementación del método de bisección
  */
