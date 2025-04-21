@@ -8,6 +8,7 @@ import ViewProfile from "@/views/ViewProfile";
 import { ViewBiseccionIntroduction } from "@/views/biseccion/ViewIntroduction";
 import { ViewVideos } from "@/views/biseccion/ViewVideos";
 import { ViewCalculator } from "@/views/biseccion/ViewCalculator";
+import { ViewBolzanoCalculator } from "@/views/bolzano/ViewBolzano";
 
 export const router = createBrowserRouter([
   {
@@ -22,6 +23,12 @@ export const router = createBrowserRouter([
         path: "/app/perfil",
         element: <ViewProfile />,
       },
+      //Bolzano
+      {
+        path: "/app/bolzano",
+        element: <ViewBolzanoCalculator />,
+      },
+      // Bisección
       {
         path: "/app/biseccion/introduccion",
         element: <ViewBiseccionIntroduction />,
