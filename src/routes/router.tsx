@@ -9,6 +9,7 @@ import { ViewBiseccionIntroduction } from "@/views/biseccion/ViewIntroduction";
 import { ViewVideos } from "@/views/biseccion/ViewVideos";
 import { ViewCalculator } from "@/views/biseccion/ViewCalculator";
 import { ViewBolzanoCalculator } from "@/views/bolzano/ViewBolzano";
+import ViewSecanteCalculadora from "@/views/secante/ViewSecanteCalculadora";
 
 export const router = createBrowserRouter([
   {
@@ -40,6 +41,11 @@ export const router = createBrowserRouter([
       {
         path: "/app/biseccion/calculadora",
         element: <ViewCalculator />,
+      },
+      // Secante
+      {
+        path: "/app/secante/calculadora",
+        element: <ViewSecanteCalculadora />,
       },
     ],
   },
