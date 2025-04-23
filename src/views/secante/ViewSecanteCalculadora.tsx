@@ -285,7 +285,7 @@ const ViewSecanteCalculadora = () => {
                 <div>
                   <h3 className="font-medium">Función evaluada:</h3>
                   <p className="text-lg font-mono">
-                    <span>f(x)</span> {/* @ts-ignore */}
+                    {/* @ts-ignore */}
                     <math-field
                       read-only
                       className="font-medium not-italic text-lg"
@@ -294,9 +294,10 @@ const ViewSecanteCalculadora = () => {
                         fontStyle: "normal",
                         fontSize: "1.2rem",
                         display: "inline-block",
+                        backgroundColor: "transparent",
                       }}
                     >
-                      {value}
+                      {"F(x) = " + value}
                       {/* @ts-ignore */}
                     </math-field>
                   </p>

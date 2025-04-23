@@ -18,9 +18,6 @@ export const useMathfield = () => {
         setValue(mathField.getValue() || "");
         evt.preventDefault();
         evt.stopPropagation();
-        if (evt.inputType === "insertLineBreak") {
-          evt.target.executeCommand("plonk");
-        }
       };
 
       mathField.addEventListener("input", handleInput);
