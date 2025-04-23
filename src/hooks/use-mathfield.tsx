@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useRef, useEffect } from "react";
 import { MathfieldElement } from "mathlive";
@@ -37,12 +38,16 @@ export const useMathfield = () => {
   }, [value]);
 
   const renderMathField = () => (
-    <math-field
-      onInput={(evt: any) => setValue(evt.target.value)}
-      ref={mathFieldRef}
-    >
-      {value}
-    </math-field>
+    <div>
+      {/* @ts-ignore */}
+      <math-field
+        onInput={(evt: any) => setValue(evt.target.value)}
+        ref={mathFieldRef}
+      >
+        {value}
+        {/* @ts-ignore */}
+      </math-field>
+    </div>
   );
 
   return { value, setValue, mathFieldRef, renderMathField };
