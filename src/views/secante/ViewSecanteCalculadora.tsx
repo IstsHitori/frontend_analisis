@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,8 @@ import { ToastContainer, Bounce, toast } from "react-toastify";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { secante } from "@/services/secante/secante";
 import PrintPDF from "@/components/PrintPDF";
+import "mathlive";
+import { ActivityIcon } from "lucide-react";
 
 const regex = /^-?\d*\.?\d+(?:[eE][-+]?\d+)?$/;
 const regexNoNegative = /^[0-9]+(?:\.[0-9]+)?(?:e[0-9]+)?$/;
@@ -276,16 +279,44 @@ const ViewSecanteCalculadora = () => {
               <div className="text-center text-lg font-medium">
                 Resultados del cálculo
               </div>
+              {/* Mostrar la función que se está evaluando */}
+              <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border flex items-center">
+                <ActivityIcon className="h-5 w-5 mr-2 text-slate-600 dark:text-slate-400" />
+                <div>
+                  <h3 className="font-medium">Función evaluada:</h3>
+                  <p className="text-lg font-mono">
+                    <span>f(x)</span> {/* @ts-ignore */}
+                    <math-field
+                      read-only
+                      className="font-medium not-italic text-lg"
+                      style={{
+                        border: 0,
+                        fontStyle: "normal",
+                        fontSize: "1.2rem",
+                        display: "inline-block",
+                      }}
+                    >
+                      {value}
+                      {/* @ts-ignore */}
+                    </math-field>
+                  </p>
+                </div>
+              </div>
               <div className="overflow-x-auto">
                 <table className="table-auto w-full border-collapse border border-gray-300">
                   <thead>
                     <tr>
                       {result.columns.map((col, index) => (
-                        <th
-                          key={index}
-                          className="border border-gray-300 px-4 py-2 text-left"
-                        >
-                          {col}
+                        <th key={index + "column"} className="border-1">
+                          {/* @ts-ignore */}
+                          <math-field
+                            read-only
+                            className="font-medium not-italic"
+                            style={{ border: 0, fontStyle: "normal" }}
+                          >
+                            {col}
+                            {/* @ts-ignore */}
+                          </math-field>
                         </th>
                       ))}
                     </tr>
@@ -308,9 +339,22 @@ const ViewSecanteCalculadora = () => {
               </div>
               <div className="space-y-2">
                 {result.steps.map((step, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <span className="font-bold">{step.label}</span>
-                    <span>{step.f}</span>
+                  <div
+                    key={index + "step"}
+                    className="flex items-center space-x-2"
+                  >
+                    <div>
+                      {/* @ts-ignore */}
+                      <math-field
+                        read-only
+                        style={{
+                          border: 0,
+                        }}
+                      >
+                        {step.label + step.f}
+                        {/* @ts-ignore */}
+                      </math-field>
+                    </div>
                   </div>
                 ))}
               </div>
