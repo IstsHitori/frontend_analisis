@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect, useState } from "react"
 import katex from "katex"
 import "katex/dist/katex.min.css"
